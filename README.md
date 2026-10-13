@@ -63,8 +63,8 @@ Run these commands from the repository root. Use two terminals for the API and w
 ### 1. Get the project
 
 ```bash
-git clone https://github.com/maheshbhakre/AI-Energy-Forecasting-System.git
-cd AI-Energy-Forecasting-System
+git clone https://github.com/maheshbhakre/AI-Energy-Forecasting-System_.git
+cd AI-Energy-Forecasting-System_
 ```
 
 ### 2. Install Python dependencies
