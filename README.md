@@ -1,106 +1,161 @@
-# ⚡ AI-POWERED ENERGY CONSUMPTION FORECASTING SYSTEM
+# AI Energy Forecasting System
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat-square)] [![ML](https://img.shields.io/badge/ML-MLP%20Regressor-orange?style=flat-square)] [![Status](https://img.shields.io/badge/Status-Completed-green?style=flat-square)]
+A Python forecasting model and React dashboard for exploring hourly electricity demand, reviewing energy use patterns, and viewing short term estimates. The dashboard combines an India-wide grid demand feed with a separate local CSV and model demonstration.
 
-## ⚡ SYSTEM OVERVIEW
-This project is a Machine Learning-based Energy Consumption Forecasting System that predicts electricity usage using historical time-series data. It simulates real-world smart grid systems where AI helps in forecasting future energy demand to improve efficiency, reduce cost, and prevent energy wastage.
+## Project overview
 
-## 🔥 WHY THIS PROJECT EXISTS
-Traditional energy systems fail to predict demand accurately, leading to power wastage, overproduction of electricity, high costs, and poor load balancing. This AI system solves this problem using machine learning forecasting.
+The project has two related parts:
 
-## 🏗️ SYSTEM ARCHITECTURE
-Data Collection → Data Cleaning → Feature Engineering (Hour, Day) → Train/Test Split → MLP Regressor Model → Training → Prediction → Evaluation (MAE, R²) → Visualization
+1. **India grid dashboard:** The Overview and Energy usage pages retrieve national electricity demand readings from the Central Electricity Authority (CEA) MERIT India data endpoint served by the National Power Portal. These readings are for the whole Indian grid and are reported in megawatts (MW).
+2. **Forecasting demonstration:** The Forecasts and Insights pages use `data/energy.csv` and a saved scikit-learn model. This CSV is an unattributed demonstration dataset. It does not identify a real company, building, meter, or original data source. Its values and forecasts must not be interpreted as official grid readings or as measurements from a particular organization.
 
-## 📊 DATASET OVERVIEW
-Time-series energy consumption dataset:
-- Datetime
-- Energy (kWh)
+The dashboard refreshes its data periodically. National grid readings are cached by the local API for up to one minute. The browser interface refreshes every 30 seconds.
 
-Feature Engineering:
-- Hour of Day
-- Day of Week
+## Screenshots
 
-## ⚙️ INSTALLATION
-git clone https://github.com/your-username/AI-Energy-Forecasting-System.git  
-cd AI-Energy-Forecasting-System  
-python -m venv venv  
-venv\Scripts\activate  
-source venv/bin/activate  
-pip install -r requirements.txt  
+Screenshots are stored in the [`images/`](./images/) folder and can be replaced or expanded as the project develops.
 
-## 🚀 USAGE
-python main.py  
+### Dashboard overview
 
-OR:
-- Load dataset  
-- Preprocess data  
-- Train model  
-- Predict output  
-- Visualize graphs  
+![Dashboard overview](images/overview.png)
 
-## ⚙️ TECH STACK
-Python, Pandas, NumPy, Matplotlib, Scikit-learn, Joblib
+### Energy usage
 
-## 📁 PROJECT STRUCTURE
+![Energy usage](images/energy_usage.png)
+
+### Forecasts
+
+![Forecast example 1](images/forcast_1.png)
+
+![Forecast example 2](images/forcast_2.png)
+
+### Insights
+
+![Insights](images/insight1.png)
+
+Additional charts and screenshots are available in [`images/`](./images/).
+
+## Features
+
+- Dashboard pages for Overview, Energy usage, Forecasts, and Insights.
+- India-wide grid demand readings from the National Power Portal, including recent, peak, and average demand in MW.
+- Hourly energy history and a 24-hour model estimate using the local demonstration dataset.
+- Hourly profile, day-part distribution, summary metrics, and automatically generated observations.
+- Python model training and evaluation using mean absolute error (MAE) and R-squared.
+- Responsive React interface with charts and screenshot assets.
+
+## Technology
+
+- Python, pandas, NumPy, scikit-learn, and joblib
+- React, Vite, Recharts, and Lucide React
+- Python standard library HTTP server for the dashboard API
+
+## Requirements
+
+- Python 3.10 or newer
+- Node.js 18 or newer and npm
+- Internet access for the live India grid data panel
+
+## Setup and run
+
+Run these commands from the repository root. Use two terminals for the API and web dashboard.
+
+### 1. Get the project
+
+```bash
+git clone https://github.com/maheshbhakre/AI-Energy-Forecasting-System.git
+cd AI-Energy-Forecasting-System
 ```
+
+### 2. Install Python dependencies
+
+Create and activate a virtual environment, then install the requirements.
+
+**Windows PowerShell:**
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+**macOS or Linux:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+### 3. Start the local API
+
+In the first terminal, run:
+
+```bash
+python server.py
+```
+
+The API listens at `http://127.0.0.1:8000`. It reads the demonstration CSV and the saved model under `models/`. If the model file is missing, train it with `python main.py` first.
+
+### 4. Start the dashboard
+
+In a second terminal, from the project folder, install the frontend packages and start Vite:
+
+```bash
+npm install
+npm run dev
+```
+
+Open the local address printed by Vite, usually `http://127.0.0.1:5173`. The Vite development server forwards `/api` requests to the local Python API.
+
+### Optional: train the forecasting model
+
+With the Python virtual environment active, run:
+
+```bash
+python main.py
+```
+
+This trains an `MLPRegressor`, prints MAE and R-squared results, saves the model to `models/energy_model.pkl`, and displays an actual-versus-predicted plot. The script expects `Datetime` and `Energy` columns in `data/energy.csv`.
+
+## Data and interpretation
+
+The India grid panel uses measurements from the [National Power Portal MERIT India dashboard](https://npp.gov.in/dashBoard/gc-map-dashboard-meritchart). These are national electricity demand readings in MW, not building-level usage in kWh. The dashboard displays the source and unit with the grid data. Availability depends on the external portal.
+
+The model demonstration uses `data/energy.csv`, whose columns include `Datetime` and `Energy`. The model derives hour of day and day of week features. Its estimates and evaluation are for demonstration only. The dataset does not document its origin, so the results should not be used for operational planning or attributed to a real facility. For organization-specific use, replace the CSV with authorized meter readings, document the site and source, and evaluate the model against a suitable time-based holdout.
+
+## API endpoints
+
+- `GET /api/health` returns a basic API health status.
+- `GET /api/dashboard?period=24h` returns dashboard data for the 24-hour view.
+- `GET /api/dashboard?period=7d` returns dashboard data for the 7-day view.
+
+The API binds to `127.0.0.1:8000` for local use. The included Vite proxy is configured for local development.
+
+## Repository layout
+
+```text
 AI-Energy-Forecasting-System/
-├── data/
-├── models/
-├── images/
-│   ├── graph1.png
-│   ├── graph2.png
-│   ├── graph3.png
-├── notebooks/
-├── src/
-├── README.md
-└── requirements.txt
+|-- data/                 # Demonstration energy dataset
+|-- images/               # Dashboard screenshots and charts
+|-- models/               # Serialized forecasting models
+|-- src/                  # React application and styles
+|-- index.html            # Vite application entry point
+|-- main.py               # Model training and evaluation
+|-- server.py             # Local dashboard API
+|-- package.json          # Frontend dependencies and commands
+|-- requirements.txt      # Python dependencies
+`-- vite.config.js        # Vite configuration and API proxy
 ```
-## 📈 RESULTS
-Model learns energy usage patterns and predicts future consumption with reasonable accuracy using MAE and R² evaluation.
 
----
+## Security and configuration
 
-## 📸 OUTPUT VISUALIZATION
+The project does not require API keys or other credentials for its current local setup. Do not commit passwords, tokens, private keys, or local `.env` files. The repository ignore rules exclude environment files, virtual environments, dependency folders, build output, and Python caches.
 
-<p align="center">
-<img src="images/graph1.png" width="700"/>
-</p>
+## Maintainer
 
-<p align="center">
-<img src="images/graph2.png" width="700"/>
-</p>
-
-<p align="center">
-<img src="images/graph3.png" width="700"/>
-</p>
-
-<p align="center">
-<img src="images/graph4.png" width="700"/>
-</p>
----
-
-## 🌐 CONNECT WITH ME
-
-<a href="https://github.com/your-username">
-<img src="https://img.shields.io/badge/GitHub-Profile-black?style=for-the-badge&logo=github">
-</a>
-
-<a href="https://www.linkedin.com/in/your-link">
-<img src="https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin">
-</a>
-
-<a href="https://www.instagram.com/your-instagram">
-<img src="https://img.shields.io/badge/Instagram-Follow-purple?style=for-the-badge&logo=instagram">
-</a>
-
-<a href="https://your-portfolio-link.com">
-<img src="https://img.shields.io/badge/Portfolio-Visit%20Website-orange?style=for-the-badge&logo=google-chrome">
-</a>
-
----
-
-## 👨‍💻 AUTHOR
 Mahesh Bhakre
 
-## ⭐ NOTE
-This project demonstrates an AI-based energy forecasting system for smart grids and real-world energy optimization.
+## License
+
+No license file is currently included. Unless a license is added, standard copyright restrictions apply and reuse permissions are not explicitly granted.
